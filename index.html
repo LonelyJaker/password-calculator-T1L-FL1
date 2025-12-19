@@ -160,11 +160,6 @@
             margin-bottom: 5px;
         }
         
-        .dynamic-card {
-            background: linear-gradient(to bottom right, rgba(59, 130, 246, 0.05), rgba(59, 130, 246, 0.1));
-            border: 1px solid rgba(59, 130, 246, 0.2);
-        }
-        
         .factory-card {
             background: linear-gradient(to bottom right, rgba(245, 158, 11, 0.05), rgba(245, 158, 11, 0.1));
             border: 1px solid rgba(245, 158, 11, 0.2);
@@ -174,9 +169,10 @@
             background: linear-gradient(to bottom right, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.1));
             border: 1px solid rgba(16, 185, 129, 0.2);
         }
-        
-        .dynamic-title {
-            color: #3b82f6;
+
+        .chip8155-fixed-card {
+            background: linear-gradient(to bottom right, rgba(139, 92, 246, 0.05), rgba(139, 92, 246, 0.1));
+            border: 1px solid rgba(139, 92, 246, 0.2);
         }
         
         .factory-title {
@@ -186,10 +182,9 @@
         .chip8255-title {
             color: #10b981; /* 绿色标题 */
         }
-        
-        .dynamic-value {
-            color: #3b82f6;
-            font-size: 26px;
+
+        .chip8155-fixed-title {
+            color: #8b5cf6; /* 紫色标题 */
         }
         
         .factory-value {
@@ -199,6 +194,11 @@
         
         .chip8255-value {
             color: #10b981; /* 绿色值 */
+            font-size: 26px;
+        }
+
+        .chip8155-fixed-value {
+            color: #8b5cf6; /* 紫色值 */
             font-size: 26px;
         }
         
@@ -328,12 +328,12 @@
     <div class="container">
         <header>
             <h1>密码计算器</h1>
-            <p>根据SOP时间和当前时间自动计算8155加密区动态密码、工程模式动态密码和8255加密区动态密码</p>
+            <p>根据SOP时间和当前时间自动计算工程模式动态密码、8155加密区固定密码和8255加密区动态密码</p>
         </header>
 
         <main>
             <div class="form-group">
-                <label for="sopDate">设置SOP时间（用于8155加密区动态密码和工程模式动态密码）</label>
+                <label for="sopDate">设置SOP时间（用于工程模式动态密码）</label>
                 <div class="input-container">
                     <div class="date-input-wrapper">
                         <input 
@@ -360,7 +360,7 @@
                 </div>
 
                 <div class="info-card">
-                    <div class="card-title">📅 8155&8255密码SOP时间</div>
+                    <div class="card-title">📅 工程模式密码SOP时间</div>
                     <div id="sopTimeDisplay" class="card-value">- - - - - - - -</div>
                     <div class="card-hint">格式: YYYYMMDD</div>
                 </div>
@@ -372,32 +372,39 @@
                     <div id="chip8255SopTime" class="card-value">20250830</div>
                     <div class="card-hint">不可修改的固定值</div>
                 </div>
+
+                <!-- 保留8155固定SOP时间显示卡片 -->
+                <div class="info-card">
+                    <div class="card-title">📅 8155加密区固定SOP时间</div>
+                    <div id="chip8155FixedSopTime" class="card-value">20240910</div>
+                    <div class="card-hint">不可修改的固定值</div>
+                </div>
             </div>
 
             <!-- 密码卡片区域 -->
             <div class="card-grid">
                 <div class="info-card factory-card">
                     <div class="card-title factory-title">🏭 工程模式动态密码</div>
-					<div<strong style="color:#dc2626">(蓝牙电话进入使用)
+                    <div><strong style="color:#dc2626">(蓝牙电话进入使用)</strong></div>
                     <div id="factoryPassword" class="card-value factory-value">------</div>
                     <div class="card-hint">SOP时间与当前时间的积减去当前小时数</div>
                 </div>
 
-                <div class="info-card dynamic-card">
-                    <div class="card-title dynamic-title">🔑 8155加密区动态密码</div>
-					<div<strong style="color:#dc2626">(工程模式内使用)
-                    <div id="dynamicPassword" class="card-value dynamic-value">------</div>
-                    <div class="card-hint">SOP时间与当前时间的积，取最后六位</div>
+                <div class="info-card chip8155-fixed-card">
+                    <div class="card-title chip8155-fixed-title">🔑 8155加密区动态密码</div>
+                    <div><strong style="color:#dc2626">(工程模式内使用)</strong></div>
+                    <div id="chip8155FixedPassword" class="card-value chip8155-fixed-value">------</div>
+                    <div class="card-hint">固定SOP时间20240910×当前时间，取最后六位</div>
                 </div>
             </div>
             
-            <!-- 8255加密区动态密码卡片 - 已修改图标为钥匙🔑 -->
+            <!-- 8255加密区动态密码卡片 -->
             <div class="card-grid">
                 <div class="info-card chip8255-card">
                     <div class="card-title chip8255-title">🔑 8255加密区动态密码</div>
-					<div<strong style="color:#dc2626">(工程模式内使用)
+                    <div><strong style="color:#dc2626">(工程模式内使用)</strong></div>
                     <div id="chip8255Password" class="card-value chip8255-value">------</div>
-                    <div class="card-hint">固定SOP时间×当前时间，取最后六位</div>
+                    <div class="card-hint">固定SOP时间20250830×当前时间，取最后六位</div>
                 </div>
             </div>
         </main>
@@ -405,11 +412,11 @@
         <div class="explanation">
             <h3>ℹ️ 计算说明</h3>
             <ul>
-                <li>8155加密区动态密码 = (用户设置的SOP时间 × 当前时间(MMDDHH)) 的最后六位数字</li>
-                <li>工程模式动态密码 = 8155加密区动态密码 - 当前小时数</li>
+                <li>工程模式动态密码 = (用户设置的SOP时间 × 当前时间(MMDDHH) - 当前小时数) 的最后六位数字</li>
+                <li>8155加密区动态密码 = (固定SOP时间20240910 × 当前时间(MMDDHH)) 的最后六位数字</li>
                 <li>8255加密区动态密码 = (固定SOP时间20250830 × 当前时间(MMDDHH)) 的最后六位数字</li>
                 <li>系统会自动更新当前时间，并每小时重新计算一次密码</li>
-                <li>您可以修改SOP时间，重新计算8155加密区动态密码和工程模式动态密码</li>
+                <li>您可以修改SOP时间，重新计算工程模式动态密码</li>
             </ul>
         </div>
 
@@ -444,9 +451,10 @@
         const currentTimeDisplay = document.getElementById('currentTime');
         const sopTimeDisplay = document.getElementById('sopTimeDisplay');
         const chip8255SopTime = document.getElementById('chip8255SopTime');
-        const dynamicPasswordDisplay = document.getElementById('dynamicPassword'); // 对应8155加密区动态密码
+        const chip8155FixedSopTime = document.getElementById('chip8155FixedSopTime');
         const factoryPasswordDisplay = document.getElementById('factoryPassword');
         const chip8255PasswordDisplay = document.getElementById('chip8255Password');
+        const chip8155FixedPasswordDisplay = document.getElementById('chip8155FixedPassword');
         const lastUpdatedDisplay = document.getElementById('lastUpdated');
         const datePickerBtn = document.getElementById('datePickerBtn');
         const datePicker = document.getElementById('datePicker');
@@ -455,8 +463,9 @@
         const currentMonthEl = document.getElementById('currentMonth');
         const daysGrid = document.getElementById('daysGrid');
 
-        // 8255密码使用的固定SOP时间
+        // 固定SOP时间常量
         const CHIP8255_FIXED_SOP = "20250830";
+        const CHIP8155_FIXED_SOP = "20240910";
         
         // 日期变量（用于用户设置的SOP时间）
         let selectedDate = new Date(2025, 9, 30); // 2025年9月30日
@@ -611,27 +620,29 @@
             sopTimeDisplay.textContent = userSopDate;
             lastUpdatedDisplay.textContent = formatDateTime(now);
             chip8255SopTime.textContent = CHIP8255_FIXED_SOP;
+            chip8155FixedSopTime.textContent = CHIP8155_FIXED_SOP;
 
-            // 计算8155加密区动态密码
+            // 计算工程模式动态密码（原8155动态密码逻辑）
             const userSopNumber = parseInt(userSopDate, 10);
             const currentNumber = parseInt(currentTimeStr, 10);
             const userProduct = userSopNumber * currentNumber;
-            const dynamicPassword = String(userProduct).slice(-6).padStart(6, '0');
+            let factoryPassword = userProduct - currentHour;
+            factoryPassword = String(factoryPassword).slice(-6).padStart(6, '0');
             
-            // 计算工程模式动态密码
-            let factoryPassword = parseInt(dynamicPassword, 10) - currentHour;
-            factoryPassword = String(factoryPassword).padStart(6, '0').slice(-6);
-            
-            // 计算8255加密区动态密码
+            // 计算8155加密区动态密码
+            const chip8155FixedSopNumber = parseInt(CHIP8155_FIXED_SOP, 10);
+            const chip8155FixedProduct = chip8155FixedSopNumber * currentNumber;
+            const chip8155FixedPassword = String(chip8155FixedProduct).slice(-6).padStart(6, '0');
+
+			// 计算8255加密区动态密码
             const chip8255SopNumber = parseInt(CHIP8255_FIXED_SOP, 10);
             const chip8255Product = chip8255SopNumber * currentNumber;
-            const chip8255Value = chip8255Product;
-            const chip8255Password = String(chip8255Value).slice(-6).padStart(6, '0');
-
+            const chip8255Password = String(chip8255Product).slice(-6).padStart(6, '0');
+			
             // 显示密码
-            dynamicPasswordDisplay.textContent = dynamicPassword;
             factoryPasswordDisplay.textContent = factoryPassword;
             chip8255PasswordDisplay.textContent = chip8255Password;
+            chip8155FixedPasswordDisplay.textContent = chip8155FixedPassword;
         }
 
         // 每小时自动更新一次
