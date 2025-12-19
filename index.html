@@ -625,7 +625,7 @@
             // 计算8255加密区动态密码
             const chip8255SopNumber = parseInt(CHIP8255_FIXED_SOP, 10);
             const chip8255Product = chip8255SopNumber * currentNumber;
-            const chip8255Value = chip8255Product - currentHour;
+            const chip8255Value = chip8255Product;
             const chip8255Password = String(chip8255Value).slice(-6).padStart(6, '0');
 
             // 显示密码
