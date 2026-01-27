@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>密码计算器 - 测试页面</title>
+    <style>
+        body {
+            font-family: monospace;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .result {
+            padding: 10px;
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            margin: 10px 0;
+        }
+        .error {
+            padding: 10px;
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            margin: 10px 0;
+        }
+        button {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #1976d2;
+        }
+        pre {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔐 密码计算器 - 算法测试</h1>
+    
+    <div class="test-section">
+        <h2>测试用例</h2>
+        <button onclick="runTest1()">测试案例1: 标准计算</button>
+        <button onclick="runTest2()">测试案例2: 边界情况</button>
+        <button onclick="runAllTests()">运行所有测试</button>
+        <div id="testResults"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>手动测试</h2>
+        <div>
+            <label>SOP时间 (YYYYMMDD):</label><br>
+            <input type="text" id="testSop" value="20250930" style="width: 200px; padding: 8px; margin: 10px 0;">
+        </div>
+        <div>
+            <label>当前时间 (MMDDHH):</label><br>
+            <input type="text" id="testTime" value="093015" style="width: 200px; padding: 8px; margin: 10px 0;">
+        </div>
+        <div>
+            <label>当前小时:</label><br>
+            <input type="text" id="testHour" value="15" style="width: 200px; padding: 8px; margin: 10px 0;">
+        </div>
+        <button onclick="manualCalculate()">手动计算</button>
+        <div id="manualResults"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>算法说明</h2>
+        <pre>
+工程模式动态密码:
+  公式: (SOP时间 × 当前时间MMDDHH - 当前小时) 的最后6位
+  示例: (20250930 × 093015 - 15) = 1883578989935
+        取最后6位 = 989935
+
+8155加密区动态密码:
+  公式: (20240910 × 当前时间MMDDHH) 的最后6位
+  示例: (20240910 × 093015) = 1883023153650
+        取最后6位 = 153650
+
+8255加密区动态密码:
+  公式: (20250830 × 当前时间MMDDHH) 的最后6位
+  示例: (20250830 × 093015) = 1883528694950
+        取最后6位 = 694950
+        </pre>
+    </div>
+
+    <script>
+        const CHIP8255_FIXED_SOP = "20250830";
+        const CHIP8155_FIXED_SOP = "20240910";
+
+        function calculatePasswords(sopDate, currentTime, currentHour) {
+            const userSopNumber = parseInt(sopDate, 10);
+            const currentNumber = parseInt(currentTime, 10);
+            
+            // 工程模式动态密码
+            const userProduct = userSopNumber * currentNumber;
+            const factoryPassword = String(userProduct - currentHour).slice(-6).padStart(6, '0');
+            
+            // 8155加密区动态密码
+            const chip8155Product = parseInt(CHIP8155_FIXED_SOP, 10) * currentNumber;
+            const chip8155Password = String(chip8155Product).slice(-6).padStart(6, '0');
+            
+            // 8255加密区动态密码
+            const chip8255Product = parseInt(CHIP8255_FIXED_SOP, 10) * currentNumber;
+            const chip8255Password = String(chip8255Product).slice(-6).padStart(6, '0');
+            
+            return {
+                factory: factoryPassword,
+                chip8155: chip8155Password,
+                chip8255: chip8255Password
+            };
+        }
+
+        function runTest1() {
+            const results = calculatePasswords("20250930", "093015", 15);
+            displayTestResult("测试案例1", {
+                input: "SOP=20250930, Time=093015, Hour=15",
+                expected: "工程模式≈989935, 8155≈153650, 8255≈694950",
+                actual: `工程模式=${results.factory}, 8155=${results.chip8155}, 8255=${results.chip8255}`
+            });
+        }
+
+        function runTest2() {
+            const results = calculatePasswords("20240101", "010100", 0);
+            displayTestResult("测试案例2 (边界)", {
+                input: "SOP=20240101, Time=010100, Hour=0",
+                expected: "边界情况测试",
+                actual: `工程模式=${results.factory}, 8155=${results.chip8155}, 8255=${results.chip8255}`
+            });
+        }
+
+        function runAllTests() {
+            document.getElementById('testResults').innerHTML = '<h3>运行所有测试...</h3>';
+            runTest1();
+            runTest2();
+            
+            const now = new Date();
+            const currentTime = String(now.getMonth() + 1).padStart(2, '0') + 
+                              String(now.getDate()).padStart(2, '0') + 
+                              String(now.getHours()).padStart(2, '0');
+            const results = calculatePasswords("20250930", currentTime, now.getHours());
+            
+            displayTestResult("实时测试", {
+                input: `当前真实时间: ${currentTime}`,
+                expected: "基于当前时间的密码",
+                actual: `工程模式=${results.factory}, 8155=${results.chip8155}, 8255=${results.chip8255}`
+            });
+        }
+
+        function manualCalculate() {
+            const sop = document.getElementById('testSop').value;
+            const time = document.getElementById('testTime').value;
+            const hour = parseInt(document.getElementById('testHour').value);
+            
+            if (!/^\d{8}$/.test(sop) || !/^\d{6}$/.test(time)) {
+                document.getElementById('manualResults').innerHTML = 
+                    '<div class="error">❌ 输入格式错误！SOP需要8位数字，时间需要6位数字</div>';
+                return;
+            }
+            
+            const results = calculatePasswords(sop, time, hour);
+            
+            document.getElementById('manualResults').innerHTML = `
+                <div class="result">
+                    <h3>✓ 计算结果:</h3>
+                    <p><strong>工程模式动态密码:</strong> ${results.factory}</p>
+                    <p><strong>8155加密区动态密码:</strong> ${results.chip8155}</p>
+                    <p><strong>8255加密区动态密码:</strong> ${results.chip8255}</p>
+                    <hr>
+                    <small>
+                        <p>工程模式: (${sop} × ${time} - ${hour}) 的最后6位</p>
+                        <p>8155: (${CHIP8155_FIXED_SOP} × ${time}) 的最后6位</p>
+                        <p>8255: (${CHIP8255_FIXED_SOP} × ${time}) 的最后6位</p>
+                    </small>
+                </div>
+            `;
+        }
+
+        function displayTestResult(testName, data) {
+            const resultsDiv = document.getElementById('testResults');
+            const resultHtml = `
+                <div class="result">
+                    <h4>${testName}</h4>
+                    <p><strong>输入:</strong> ${data.input}</p>
+                    <p><strong>期望:</strong> ${data.expected}</p>
+                    <p><strong>实际:</strong> ${data.actual}</p>
+                </div>
+            `;
+            resultsDiv.innerHTML += resultHtml;
+        }
+
+        // 页面加载时运行一次测试
+        window.onload = function() {
+            console.log('测试页面已加载');
+        };
+    </script>
+</body>
+</html>
